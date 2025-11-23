@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Exo } from "next/font/google";
 import "./globals.css";
+import TransitionProvider from "@/providers/transitionProvider";
+import { Navbar } from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 
 const exo = Exo({
@@ -25,7 +28,11 @@ export default function RootLayout({
       <body
         className={exo.className}
       >
-        {children}
+        <TransitionProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </TransitionProvider>
       </body>
     </html>
   );

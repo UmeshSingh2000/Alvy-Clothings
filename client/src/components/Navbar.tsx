@@ -6,8 +6,21 @@ import { ShoppingCart, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { usePageTransition } from "@/providers/transitionProvider";
+import { usePathname } from "next/navigation";
+
 export function Navbar() {
     const [open, setOpen] = useState(false);
+    const pathname = usePathname();
+    const { startTransition } = usePageTransition();
+
+    const isActive = (route: string) => pathname === route;
+
+    const buttonClasses = (route: string) =>
+        `w-28 py-5 rounded-[5px] ${isActive(route)
+            ? "bg-[#444] opacity-60 cursor-not-allowed border border-[#d2c26b]"
+            : "bg-[#222]"
+        }`;
 
     return (
         <>
@@ -20,15 +33,49 @@ export function Navbar() {
 
                     {/* Desktop Menu */}
                     <div className="hidden md:flex items-center gap-4">
-                        <Button className="bg-[#222222] w-28 py-5 rounded-[5px]">About</Button>
-                        <Button className="bg-[#222222] w-28 py-5 rounded-[5px]">Shop</Button>
-                        <Button className="bg-[#222222] w-28 py-5 rounded-[5px]">Pages</Button>
 
-                        <Button className="bg-[#d2c26b] rounded-[5px] text-black font-light px-6 py-5 text-base hover:bg-[#e7d988]">
-                            Login/Register
+                        {/* ABOUT */}
+                        <Button
+                            className={buttonClasses("/about")}
+                            disabled={isActive("/about")}
+                            onClick={() => !isActive("/about") && startTransition("/about")}
+                        >
+                            About
                         </Button>
 
-                        <Link href="/cart" className="p-2 bg-[#1b1c1c] rounded-lg hover:bg-[#2a2b2b] transition">
+                        {/* SHOP */}
+                        <Button
+                            className={buttonClasses("/shop")}
+                            disabled={isActive("/shop")}
+                            onClick={() => !isActive("/shop") && startTransition("/shop")}
+                        >
+                            Shop
+                        </Button>
+
+                        {/* PAGES */}
+                        <Button
+                            className={buttonClasses("/pages")}
+                            disabled={isActive("/pages")}
+                            onClick={() => !isActive("/pages") && startTransition("/pages")}
+                        >
+                            Pages
+                        </Button>
+
+                        {/* Login */}
+                        {
+                            pathname.startsWith("/login") ? null :
+                            <Button className="bg-[#d2c26b] rounded-[5px] text-black font-light px-6 py-5 text-base hover:bg-[#e7d988]"
+                                onClick={() => startTransition("/login")}
+                            >
+                                Login/Register
+                            </Button>
+                        }
+
+                        {/* Cart */}
+                        <Link
+                            href="/cart"
+                            className="p-2 bg-[#1b1c1c] rounded-lg hover:bg-[#2a2b2b] transition"
+                        >
                             <ShoppingCart size={20} />
                         </Link>
                     </div>
@@ -40,7 +87,7 @@ export function Navbar() {
                 </div>
             </nav>
 
-            {/* 🟡 MOBILE MENU — TOP SLIDE ANIMATION */}
+            {/* MOBILE MENU */}
             <AnimatePresence>
                 {open && (
                     <motion.div
@@ -49,7 +96,7 @@ export function Navbar() {
                         exit={{ y: "-100%", opacity: 0 }}
                         transition={{
                             duration: 0.4,
-                            ease: [0.22, 1, 0.36, 1], // smooth cubic ease
+                            ease: [0.22, 1, 0.36, 1],
                         }}
                         className="fixed top-0 left-0 w-full h-full backdrop-blur-xl z-50 p-6 shadow-2xl"
                     >
@@ -65,23 +112,51 @@ export function Navbar() {
                             <Link href="/" className="text-3xl font-medium tracking-wide">
                                 Alvy
                             </Link>
+
                             <div className="flex flex-col gap-6 text-lg">
-                                <Link href="/about" onClick={() => setOpen(false)}>
-                                    <Button className="w-full bg-[#222222] py-5 rounded-[5px]">About</Button>
-                                </Link>
 
-                                <Link href="/shop" onClick={() => setOpen(false)}>
-                                    <Button className="w-full bg-[#222222] py-5 rounded-[5px]">Shop</Button>
-                                </Link>
+                                {/* ABOUT */}
+                                <Button
+                                    className={buttonClasses("/about")}
+                                    disabled={isActive("/about")}
+                                    onClick={() => {
+                                        if (!isActive("/about")) startTransition("/about");
+                                        setOpen(false);
+                                    }}
+                                >
+                                    About
+                                </Button>
 
-                                <Link href="/pages" onClick={() => setOpen(false)}>
-                                    <Button className="w-full bg-[#222222] py-5 rounded-[5px]">Pages</Button>
-                                </Link>
+                                {/* SHOP */}
+                                <Button
+                                    className={buttonClasses("/shop")}
+                                    disabled={isActive("/shop")}
+                                    onClick={() => {
+                                        if (!isActive("/shop")) startTransition("/shop");
+                                        setOpen(false);
+                                    }}
+                                >
+                                    Shop
+                                </Button>
 
+                                {/* PAGES */}
+                                <Button
+                                    className={buttonClasses("/pages")}
+                                    disabled={isActive("/pages")}
+                                    onClick={() => {
+                                        if (!isActive("/pages")) startTransition("/pages");
+                                        setOpen(false);
+                                    }}
+                                >
+                                    Pages
+                                </Button>
+
+                                {/* Login */}
                                 <Button className="bg-[#d2c26b] rounded-[5px] text-black font-light px-6 py-5 text-base hover:bg-[#e7d988]">
                                     Login/Register
                                 </Button>
 
+                                {/* Cart */}
                                 <Link
                                     href="/cart"
                                     onClick={() => setOpen(false)}

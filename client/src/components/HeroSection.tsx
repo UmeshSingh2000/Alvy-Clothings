@@ -27,8 +27,7 @@ export default function HeroSection() {
                     </h1>
 
                     <p className="text-lg md:text-xl max-w-2xl mb-6">
-                        Bringing Your Fashion Brand&apos;s Unique Identity to Life Through
-                        Strategic Marketing and Advertising.
+                        Shop the latest trends in apparel, accessories, and statement pieces tailored for every occasion.
                     </p>
 
                     {/* Explore Button */}
@@ -36,7 +35,7 @@ export default function HeroSection() {
                         className="flex cursor-pointer items-center gap-2 bg-black/70 text-white px-5 py-2 rounded-full w-fit"
                     >
                         <ChevronDown size={20} />
-                        Explore
+                        Shop Now
                     </button>
                 </div>
             </div>
