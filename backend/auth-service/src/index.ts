@@ -12,11 +12,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/", (req, res) => {
-    res.send("Auth Service Running");
-});
-
-app.use("/api/auth", authRoutes)
+app.use("/", authRoutes)
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Auth service on ${PORT}`));
