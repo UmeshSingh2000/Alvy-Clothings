@@ -1,0 +1,116 @@
+"use client"
+import { motion } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+
+export default function RegisterPage() {
+    const [userData, setUserData] = useState({
+        email: "",
+        password: "",
+        confirmPassword: ""
+    })
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setUserData({ ...userData, [e.target.name]: e.target.value })
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        try {
+            e.preventDefault();
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/register`, {
+                email: userData.email,
+                password: userData.password
+            })
+            if (response.status === 201) {
+                toast.success("Registration successful! You can now log in.");
+                setUserData({
+                    email: "",
+                    password: "",
+                    confirmPassword: ""
+                });
+            }
+        }
+        catch (error) {
+            console.error("Error during registration:", error);
+        }
+    }
+
+
+
+    return (
+        <div className="min-h-screen bg-[#0c0c0c] flex items-center justify-center px-4">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="w-full max-w-md bg-[#111] rounded-2xl p-8 shadow-lg border border-[#1f1f1f]"
+            >
+                {/* Title Section */}
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold text-white tracking-wide">Create Account</h1>
+                    <p className="text-gray-400 text-sm mt-2">Join Alvy and start your fashion journey</p>
+                </div>
+
+                {/* Form */}
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    <div>
+                        <label className="text-gray-300 text-sm">Email</label>
+                        <Input
+                            type="email"
+                            name="email"
+                            value={userData.email}
+                            onChange={handleChange}
+                            placeholder="Enter your email"
+                            className="mt-1 bg-[#1a1a1a] border-[#333] text-gray-200"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="text-gray-300 text-sm">Password</label>
+                        <Input
+                            name="password"
+                            type="password"
+                            value={userData.password}
+                            onChange={handleChange}
+                            placeholder="Enter your password"
+                            className="mt-1 bg-[#1a1a1a] border-[#333] text-gray-200"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="text-gray-300 text-sm">Confirm Password</label>
+                        <Input
+                            type="password"
+                            name="confirmPassword"
+                            value={userData.confirmPassword}
+                            onChange={handleChange}
+                            placeholder="Re-enter your password"
+                            className="mt-1 bg-[#1a1a1a] border-[#333] text-gray-200"
+                        />
+                    </div>
+
+                    <Button
+                        type="submit"
+                        className="w-full bg-[#b9a44c] hover:bg-[#d3be63] text-black font-semibold rounded-xl py-5 mt-4"
+                    >
+                        Register
+                    </Button>
+                </form>
+
+                {/* Extras */}
+                <div className="text-center mt-6">
+                    <p className="text-gray-400 text-sm">
+                        Already have an account? {" "}
+                        <Link href="/login" className="text-[#d3be63] hover:underline">
+                            Login
+                        </Link>
+                    </p>
+                </div>
+            </motion.div>
+        </div>
+    );
+}

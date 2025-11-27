@@ -4,6 +4,7 @@ import "./globals.css";
 import TransitionProvider from "@/providers/transitionProvider";
 import { Navbar } from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Toaster } from "react-hot-toast";
 
 
 const exo = Exo({
@@ -30,6 +31,7 @@ export default function RootLayout({
       >
         <TransitionProvider>
           <Navbar />
+          <Toaster />
           {children}
           <Footer />
         </TransitionProvider>
