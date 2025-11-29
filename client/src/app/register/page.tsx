@@ -6,13 +6,41 @@ import Link from "next/link";
 import { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { z } from "zod";
+import { useRouter } from "next/navigation";
+
+const registerSchema = z.object({
+    email: z.string().email(),
+    password: z.string().min(6, "Password must be at least 6 characters long"),
+    confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+})
+
 
 export default function RegisterPage() {
+    const [loading, setLoading] = useState<boolean>(false);
+    const router = useRouter()
     const [userData, setUserData] = useState({
         email: "",
+        email_errorMessage: "",
         password: "",
-        confirmPassword: ""
+        password_errorMessage: "",
+        confirmPassword: "",
+        confirmPassword_errorMessage: "",
     })
+
+    const clearErrorMessages = () => {
+        setUserData((prev) => {
+            return {
+                ...prev,
+                email_errorMessage: "",
+                password_errorMessage: "",
+                confirmPassword_errorMessage: "",
+            }
+        })
+    }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setUserData({ ...userData, [e.target.name]: e.target.value })
@@ -20,22 +48,50 @@ export default function RegisterPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         try {
+            setLoading(true);
             e.preventDefault();
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/register`, {
+            clearErrorMessages();
+            const parsed = registerSchema.safeParse(userData);
+            if (!parsed.success) {
+                const IssueMap: Record<string, string> = {};
+                parsed.error.issues.forEach((issue) => {
+                    const fieldName = issue.path[0] as string;
+                    IssueMap[fieldName] = issue.message;
+                })
+
+                setUserData((prev) => {
+                    return {
+                        ...prev,
+                        email_errorMessage: IssueMap["email"] || "",
+                        password_errorMessage: IssueMap["password"] || "",
+                        confirmPassword_errorMessage: IssueMap["confirmPassword"] || "",
+                    }
+                })
+                return toast.error("Invalid input data. Please check the form for errors.");
+            }
+
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_GATEWAY_URL}/auth/register`, {
                 email: userData.email,
                 password: userData.password
             })
             if (response.status === 201) {
                 toast.success("Registration successful! You can now log in.");
+                router.push("/login");
                 setUserData({
                     email: "",
+                    email_errorMessage: "",
                     password: "",
-                    confirmPassword: ""
+                    password_errorMessage: "",
+                    confirmPassword: "",
+                    confirmPassword_errorMessage: "",
                 });
             }
         }
-        catch (error) {
-            console.error("Error during registration:", error);
+        catch (error: any) {
+            toast.error(error.response.data.message);
+        }
+        finally {
+            setLoading(false);
         }
     }
 
@@ -67,6 +123,7 @@ export default function RegisterPage() {
                             placeholder="Enter your email"
                             className="mt-1 bg-[#1a1a1a] border-[#333] text-gray-200"
                         />
+                        <span className="text-red-600">{userData.email_errorMessage}</span>
                     </div>
 
                     <div>
@@ -79,6 +136,7 @@ export default function RegisterPage() {
                             placeholder="Enter your password"
                             className="mt-1 bg-[#1a1a1a] border-[#333] text-gray-200"
                         />
+                        <span className="text-red-600">{userData.password_errorMessage}</span>
                     </div>
 
                     <div>
@@ -91,13 +149,15 @@ export default function RegisterPage() {
                             placeholder="Re-enter your password"
                             className="mt-1 bg-[#1a1a1a] border-[#333] text-gray-200"
                         />
+                        <span className="text-red-600">{userData.confirmPassword_errorMessage}</span>
                     </div>
 
                     <Button
                         type="submit"
+                        disabled={loading}
                         className="w-full bg-[#b9a44c] hover:bg-[#d3be63] text-black font-semibold rounded-xl py-5 mt-4"
                     >
-                        Register
+                        {loading ? "Registering..." : "Register"}
                     </Button>
                 </form>
 
