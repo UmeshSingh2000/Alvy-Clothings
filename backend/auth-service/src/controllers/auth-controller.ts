@@ -2,6 +2,7 @@ import prisma from "../config/prisma";
 import { comparePassword, hashPassword } from "../helpers/bcrypt";
 import { Request, Response } from "express";
 import { z } from "zod";
+import { generateToken } from "../helpers/jwt";
 
 const userSchema = z.object({
     email: z.string().email("Invalid email address"),
@@ -72,7 +73,11 @@ export const loginUser = async (req: Request, res: Response) => {
         if (!isPasswordValid) {
             return res.status(401).json({ message: "Invalid password" });
         }
-        return res.status(200).json({ message: "Login successful", userId: user.id });
+
+        // generate JWT token
+        const token = generateToken({ id: user.id, email: user.email });
+
+        return res.status(200).json({ message: "Login successful", userId: user.id, token });
     }
     catch (error) {
         console.error("Error logging in user:", error);
